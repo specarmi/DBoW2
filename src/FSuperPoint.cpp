@@ -27,7 +27,7 @@ void FSuperPoint::meanValue(const std::vector<FSuperPoint::pDescriptor> &descrip
     mean = cv::Mat::zeros(1, FSuperPoint::L, CV_32F);
     for(size_t i = 0; i < descriptors.size(); ++i)
     {
-      mean = mean + *descriptors[i];
+      mean += *descriptors[i];
     }
     mean = mean / (float)descriptors.size();
   }
@@ -38,7 +38,12 @@ void FSuperPoint::meanValue(const std::vector<FSuperPoint::pDescriptor> &descrip
 double FSuperPoint::distance(const FSuperPoint::TDescriptor &a, 
   const FSuperPoint::TDescriptor &b)
 {
-  return cv::norm(a, b);
+  double sqd = 0.0;
+  const float *a_ptr=a.ptr<float>(0);
+  const float *b_ptr=b.ptr<float>(0);
+  for(int i = 0; i < FSuperPoint::L; i ++)
+      sqd += (a_ptr[i] - b_ptr[i])*(a_ptr[i] - b_ptr[i]);
+  return sqd;
 }
 
 // --------------------------------------------------------------------------
@@ -46,11 +51,11 @@ double FSuperPoint::distance(const FSuperPoint::TDescriptor &a,
 std::string FSuperPoint::toString(const FSuperPoint::TDescriptor &a)
 {
   stringstream ss;
-  const double *p = a.ptr<double>();
+  const float *p = a.ptr<float>();
   
-  for(int i = 0; i < a.cols; ++i, ++p)
+  for(int i = 0; i < FSuperPoint::L; ++i, ++p)
   {
-    ss << (double)*p << " ";
+    ss << (float)*p << " ";
   }
   
   return ss.str();
@@ -61,16 +66,16 @@ std::string FSuperPoint::toString(const FSuperPoint::TDescriptor &a)
 void FSuperPoint::fromString(FSuperPoint::TDescriptor &a, const std::string &s)
 {
   a.create(1, FSuperPoint::L, CV_32F);
-  double *p = a.ptr<double>();
+  float *p = a.ptr<float>();
   
   stringstream ss(s);
   for(int i = 0; i < FSuperPoint::L; ++i, ++p)
   {
-    double d;
-    ss >> d;
+    float f;
+    ss >> f;
     
     if(!ss.fail()) 
-      *p = (double)d;
+      *p = (float)f;
   }
 }
 
@@ -91,12 +96,7 @@ void FSuperPoint::toMat32F(const std::vector<TDescriptor> &descriptors,
   
   for(int i = 0; i < N; ++i)
   {
-    const double *desc = descriptors[i].ptr<double>();
-    float *p = mat.ptr<float>(i);
-    for(int j = 0; j < FSuperPoint::L; ++j, ++p)
-    {
-      *p = (float)desc[j];
-    }
+    descriptors[i].row(0).copyTo(mat.row(i));
   } 
 }
 
