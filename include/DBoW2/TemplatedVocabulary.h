@@ -23,6 +23,8 @@
 #include "BowVector.h"
 #include "ScoringObject.h"
 
+#include <iostream>
+
 namespace DBoW2 {
 
 /// @param TDescriptor class of descriptor
@@ -639,7 +641,7 @@ void TemplatedVocabulary<TDescriptor,F>::getFeatures(
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id, 
   const std::vector<pDescriptor> &descriptors, int current_level)
-{
+{ 
   if(descriptors.empty()) return;
         
   // features associated to each cluster
@@ -789,6 +791,10 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
     m_nodes.back().parent = parent_id;
     m_nodes[parent_id].children.push_back(id);
   }
+
+  std::cout << "Completed " << m_nodes.size() - 1 << " nodes, " << 
+    100.0 * ((double)m_nodes.size() / ((pow((double)m_k, (double)m_L + 1) - 1.0)/((double)m_k - 1.0))) << 
+    "% of maximum number" << std::endl;
   
   // go on with the next level
   if(current_level < m_L)
