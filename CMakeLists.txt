@@ -4,6 +4,7 @@ include(ExternalProject)
 
 option(BUILD_DBoW2   "Build DBoW2"            ON)
 option(BUILD_Demo    "Build demo application" ON)
+option(BUILD_SuperPt "Build SuperPoint vocabulary" ON)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
@@ -21,10 +22,12 @@ set(HDRS
   include/DBoW2/BowVector.h           include/DBoW2/FBrief.h
   include/DBoW2/QueryResults.h        include/DBoW2/TemplatedDatabase.h   include/DBoW2/FORB.h
   include/DBoW2/DBoW2.h               include/DBoW2/FClass.h              include/DBoW2/FeatureVector.h
-  include/DBoW2/ScoringObject.h       include/DBoW2/TemplatedVocabulary.h)
+  include/DBoW2/ScoringObject.h       include/DBoW2/TemplatedVocabulary.h
+  include/FSuperPoint.h)
 set(SRCS 
   src/BowVector.cpp     src/FBrief.cpp        src/FORB.cpp
-  src/FeatureVector.cpp src/QueryResults.cpp  src/ScoringObject.cpp)
+  src/FeatureVector.cpp src/QueryResults.cpp  src/ScoringObject.cpp
+  src/FSuperPoint.cpp)
 
 set(DEPENDENCY_DIR ${CMAKE_CURRENT_BINARY_DIR}/dependencies)
 set(DEPENDENCY_INSTALL_DIR ${DEPENDENCY_DIR}/install)
@@ -49,6 +52,12 @@ if(BUILD_Demo)
   set_target_properties(demo PROPERTIES CXX_STANDARD 11)
   file(COPY demo/images DESTINATION ${CMAKE_BINARY_DIR}/)
 endif(BUILD_Demo)
+
+if(BUILD_SuperPt)
+  add_executable(superpt build_superpt_vocab.cpp)
+  target_link_libraries(superpt ${PROJECT_NAME} ${OpenCV_LIBS})
+  set_target_properties(superpt PROPERTIES CXX_STANDARD 11)
+endif(BUILD_SuperPt)
 
 configure_file(src/DBoW2.cmake.in
   "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" @ONLY)
