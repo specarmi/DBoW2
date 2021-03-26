@@ -30,7 +30,7 @@ const int NIMAGES = 5;
 int main()
 {
   // load the vocabulary from disk
-  SuperPointVocabulary voc("superpt_voc.yml.gz");
+  SuperPointVocabulary voc("../superpt_voc.yml.gz");
 
   // get features for a small number of images
   vector<vector<cv::Mat > > features;
