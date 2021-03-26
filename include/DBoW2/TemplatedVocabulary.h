@@ -642,6 +642,11 @@ template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id, 
   const std::vector<pDescriptor> &descriptors, int current_level)
 { 
+  double percent_done = 
+    (100.0 * (double)m_nodes.size() / ((pow((double)m_k, (double)m_L + 1) - 1.0)/((double)m_k - 1.0)));
+  int num_desc = descriptors.size();
+  int k_mean_count = 0;
+  
   if(descriptors.empty()) return;
         
   // features associated to each cluster
@@ -676,9 +681,9 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
     bool goon = true;
     
     // to check if clusters move after iterations
-    std::vector<int> last_association, current_association;
+    std::vector<unsigned int> last_association, current_association;
 
-    while(goon)
+    while(goon && k_mean_count < 100)
     {
       // 1. Calculate clusters
 
@@ -712,7 +717,10 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
             cluster_descriptors.push_back(descriptors[*vit]);
           }
           
-          
+          if(cluster_descriptors.empty())
+          {
+            std::cout << "Empty set of descriptors." << std::endl;
+          }
           F::meanValue(cluster_descriptors, clusters[c]);
         }
         
@@ -728,8 +736,9 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
       //assoc.clear();
 
       typename std::vector<pDescriptor>::const_iterator fit;
-      //unsigned int d = 0;
-      for(fit = descriptors.begin(); fit != descriptors.end(); ++fit)//, ++d)
+      unsigned int index_assoc = 0;
+      unsigned int num_switch = 0;
+      for(fit = descriptors.begin(); fit != descriptors.end(); ++fit, ++index_assoc)
       {
         double best_dist = F::distance(*(*fit), clusters[0]);
         unsigned int icluster = 0;
@@ -748,6 +757,11 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
 
         groups[icluster].push_back(fit - descriptors.begin());
         current_association[ fit - descriptors.begin() ] = icluster;
+
+        if(!first_time && last_association[index_assoc] != icluster)
+        {
+          num_switch++;
+        }
       }
       
       // kmeans++ ensures all the clusters has any feature associated with them
@@ -760,14 +774,16 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
       else
       {
         //goon = !eqUChar(last_assoc, assoc);
+        double percent_switch = 100.0 * (double)num_switch / (double)num_desc;
+        std::cout << "Approx. percent complete: " << percent_done <<
+          " Number desc: " << num_desc <<
+          " Percent switch: " << percent_switch << 
+          " Iteration: " << k_mean_count << std::endl;
         
         goon = false;
-        for(unsigned int i = 0; i < current_association.size(); i++)
+        if(num_switch != 0)
         {
-          if(current_association[i] != last_association[i]){
-            goon = true;
-            break;
-          }
+          goon = true;
         }
       }
 
@@ -777,7 +793,7 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
 				last_association = current_association;
 				//last_assoc = assoc.clone();
 			}
-			
+			k_mean_count++;
 		} // while(goon)
     
   } // if must run kmeans
@@ -791,10 +807,6 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
     m_nodes.back().parent = parent_id;
     m_nodes[parent_id].children.push_back(id);
   }
-
-  std::cout << "Completed " << m_nodes.size() - 1 << " nodes, " << 
-    100.0 * ((double)m_nodes.size() / ((pow((double)m_k, (double)m_L + 1) - 1.0)/((double)m_k - 1.0))) << 
-    "% of maximum number" << std::endl;
   
   // go on with the next level
   if(current_level < m_L)
