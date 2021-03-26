@@ -15,7 +15,6 @@ void FSuperPoint::meanValue(const std::vector<FSuperPoint::pDescriptor> &descrip
 {
   if(descriptors.empty())
   {
-    mean.release();
     return;
   }
   else if(descriptors.size() == 1)
