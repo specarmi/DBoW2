@@ -59,6 +59,12 @@ if(BUILD_SuperPt)
   set_target_properties(superpt PROPERTIES CXX_STANDARD 11)
 endif(BUILD_SuperPt)
 
+if(BUILD_SuperPt)
+  add_executable(test_superpt test_vocab.cpp)
+  target_link_libraries(test_superpt ${PROJECT_NAME} ${OpenCV_LIBS})
+  set_target_properties(test_superpt PROPERTIES CXX_STANDARD 11)
+endif(BUILD_SuperPt)
+
 configure_file(src/DBoW2.cmake.in
   "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" @ONLY)
 
