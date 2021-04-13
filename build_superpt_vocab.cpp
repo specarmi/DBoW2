@@ -16,7 +16,7 @@ using namespace std;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-void loadFeatures(vector<vector<cv::Mat > > &features);
+void loadFeatures(vector<vector<cv::Mat > > &features, const string &feature_filepath);
 void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out);
 void testVocCreation(const vector<vector<cv::Mat > > &features);
 void testDatabase(const vector<vector<cv::Mat > > &features);
@@ -29,10 +29,16 @@ const int NIMAGES = 8862;
 
 // ----------------------------------------------------------------------------
 
-int main()
+int main(int argc, char **argv)
 {
+  if(argc != 2)
+  {
+      cerr << endl << "Usage: ./build_superpt_vocab path_to_superpoint_features" << endl;
+      return 1;
+  }
+
   vector<vector<cv::Mat > > features;
-  loadFeatures(features);
+  loadFeatures(features, argv[1]);
 
   testVocCreation(features);
 
@@ -41,7 +47,7 @@ int main()
 
 // ----------------------------------------------------------------------------
 
-void loadFeatures(vector<vector<cv::Mat > > &features)
+void loadFeatures(vector<vector<cv::Mat > > &features, const string &feature_filepath)
 {
   features.clear();
   features.reserve(NIMAGES);
@@ -50,7 +56,7 @@ void loadFeatures(vector<vector<cv::Mat > > &features)
   for(int i = 1; i < NIMAGES + 1; ++i)
   {
     stringstream ss;
-    ss << "../../datasets/FLIR_ADAS/train/Keypts_and_Desc/" << i << ".yaml";
+    ss << feature_filepath << i << ".yaml";
     cv::FileStorage pts_log(ss.str(), cv::FileStorage::READ);
 
     cv::Mat descriptors;

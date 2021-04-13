@@ -54,15 +54,15 @@ if(BUILD_Demo)
 endif(BUILD_Demo)
 
 if(BUILD_SuperPt)
-  add_executable(superpt build_superpt_vocab.cpp)
-  target_link_libraries(superpt ${PROJECT_NAME} ${OpenCV_LIBS})
-  set_target_properties(superpt PROPERTIES CXX_STANDARD 11)
+  add_executable(build_superpt_vocab build_superpt_vocab.cpp)
+  target_link_libraries(build_superpt_vocab ${PROJECT_NAME} ${OpenCV_LIBS})
+  set_target_properties(build_superpt_vocab PROPERTIES CXX_STANDARD 11)
 endif(BUILD_SuperPt)
 
 if(BUILD_SuperPt)
-  add_executable(test_superpt test_vocab.cpp)
-  target_link_libraries(test_superpt ${PROJECT_NAME} ${OpenCV_LIBS})
-  set_target_properties(test_superpt PROPERTIES CXX_STANDARD 11)
+  add_executable(test_vocab test_vocab.cpp)
+  target_link_libraries(test_vocab ${PROJECT_NAME} ${OpenCV_LIBS})
+  set_target_properties(test_vocab PROPERTIES CXX_STANDARD 11)
 endif(BUILD_SuperPt)
 
 configure_file(src/DBoW2.cmake.in
