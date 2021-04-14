@@ -16,7 +16,7 @@ using namespace std;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-void loadFeatures(vector<vector<cv::Mat > > &features);
+void loadFeatures(vector<vector<cv::Mat > > &features, const string &feature_path);
 void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out);
 
 
@@ -27,14 +27,21 @@ const int NIMAGES = 5;
 
 // ----------------------------------------------------------------------------
 
-int main()
+int main(int argc, char **argv)
 {
+  if(argc != 3)
+  {
+      cerr << endl << "Usage: ./build_superpt_vocab path_to_superpoint_features "
+        "path_to_superpoint_vocabulary" << endl;
+      return 1;
+  }
+  
   // load the vocabulary from disk
-  SuperPointVocabulary voc("../superpt_voc.yml.gz");
+  SuperPointVocabulary voc(argv[2]);
 
   // get features for a small number of images
   vector<vector<cv::Mat > > features;
-  loadFeatures(features);
+  loadFeatures(features, argv[1]);
 
   // score images to test vocab
   cout << "Scoring image matches (0 low, 1 high): " << endl;
@@ -55,7 +62,7 @@ int main()
 
 // ----------------------------------------------------------------------------
 
-void loadFeatures(vector<vector<cv::Mat > > &features)
+void loadFeatures(vector<vector<cv::Mat > > &features, const string &feature_path)
 {
   features.clear();
   features.reserve(NIMAGES);
@@ -64,7 +71,7 @@ void loadFeatures(vector<vector<cv::Mat > > &features)
   for(int i = 1; i < NIMAGES + 1; ++i)
   {
     stringstream ss;
-    ss << "../Selection_Keypts_and_Desc/" << i << ".yaml";
+    ss << feature_path << i << ".yaml";
     cv::FileStorage pts_log(ss.str(), cv::FileStorage::READ);
 
     cv::Mat descriptors;
